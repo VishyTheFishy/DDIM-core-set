@@ -104,11 +104,7 @@ class Diffusion(object):
             shuffle=False,
             num_workers=config.data.num_workers,
         )
-        count = 0
         for i, (x, y) in enumerate(train_loader):
-            count += 1
-            if(count == 100):
-                break
             n = x.size(0)
             x = x.to(self.device)
             x = data_transform(self.config, x)
@@ -126,8 +122,10 @@ class Diffusion(object):
             print(sum(scores)/len(scores),i)
         dataset_scored = zip(scores,dataset)
         m = sorted(scores)[round(len(scores)*.5)]#self.config.prun_ratio)]
+        print(m)
         x = lambda a : a[0] > m
         filter(x,dataset_scored)
+        print(len(dataset)
         losses,dataset = zip(*dataset_scored)
         return(dataset)
     def train(self):
