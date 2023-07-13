@@ -125,7 +125,7 @@ class Diffusion(object):
             scores.append(loss.item())
             print(sum(scores)/len(scores),i)
         dataset_scored = zip(scores,dataset)
-        m = sorted(scores)[round(len(dataset)*.5)]#self.config.prun_ratio)]
+        m = sorted(scores)[round(len(scores)*.5)]#self.config.prun_ratio)]
         x = lambda a : a[0] > m
         filter(dataset_scored,x)
         losses,dataset = zip(*dataset_scored)
