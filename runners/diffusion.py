@@ -107,7 +107,7 @@ class Diffusion(object):
         x = 0
         for i, (x, y) in enumerate(train_loader):
             x += 1
-            if(x = 100):
+            if(x == 100):
                 break
             n = x.size(0)
             x = x.to(self.device)
