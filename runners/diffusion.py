@@ -104,10 +104,10 @@ class Diffusion(object):
             shuffle=False,
             num_workers=config.data.num_workers,
         )
-        x = 0
+        count = 0
         for i, (x, y) in enumerate(train_loader):
             x += 1
-            if(x == 100):
+            if(count == 100):
                 break
             n = x.size(0)
             x = x.to(self.device)
