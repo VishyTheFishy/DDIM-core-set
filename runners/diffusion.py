@@ -94,17 +94,44 @@ class Diffusion(object):
             # [posterior_variance[1:2], betas[1:]], dim=0).log()
         elif self.model_var_type == "fixedsmall":
             self.logvar = posterior_variance.clamp(min=1e-20).log()
+    def filterSet(self,dataset,model):
+        args, config = self.args,self.config
+        scores = []
+        dataset, test_dataset = get_dataset(args, config)
+        train_loader = data.DataLoader(
+            dataset,
+            batch_size=1,
+            shuffle=False,
+            num_workers=config.data.num_workers,
+        )
 
+        for i, (x, y) in enumerate(train_loader):
+            n = x.size(0)
+            x = x.to(self.device)
+            x = data_transform(self.config, x)
+            e = torch.randn_like(x)
+            b = self.betas
+                # antithetic sampling
+            t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*100#config.select_t
+            t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+            print(x.device,t.device,e.device,b.device)
+            loss = loss_registry[config.model.type](model, x, t, e, b)
+            
+            print(torch.cuda.memory_allocated(0))
+
+            scores.append(loss.item())
+            print(sum(scores)/len(scores),i)
+        dataset_scored = zip(scores,dataset)
+        m = scores.sorted()[round(len(dataset)*.6)]#self.config.select_ratio)]
+        x = lambda a : a[0] > m
+        filter(dataset_scored,x)
+        losses,dataset = zip(*dataset_scored)
+        return(dataset)
     def train(self):
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
-        train_loader = data.DataLoader(
-            dataset,
-            batch_size=config.training.batch_size,
-            shuffle=True,
-            num_workers=config.data.num_workers,
-        )
+        train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
         model = Model(config)
 
         model = model.to(self.device)
@@ -131,6 +158,9 @@ class Diffusion(object):
                 ema_helper.load_state_dict(states[4])
 
         for epoch in range(start_epoch, self.config.training.n_epochs):
+            if(epoch % 10 == 0):
+                dataset = self.filterSet(dataset,model)
+                train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
             data_start = time.time()
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
