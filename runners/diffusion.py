@@ -127,7 +127,7 @@ class Diffusion(object):
         dataset_scored = zip(scores,dataset)
         m = sorted(scores)[round(len(scores)*.5)]#self.config.prun_ratio)]
         x = lambda a : a[0] > m
-        filter(dataset_scored,x)
+        filter(x,dataset_scored)
         losses,dataset = zip(*dataset_scored)
         return(dataset)
     def train(self):
