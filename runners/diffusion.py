@@ -126,7 +126,7 @@ class Diffusion(object):
         dataset = [data[0] for data in dataset_scored if x(data[0]) > m]
         
         print(m)
-        print(len(dataset)
+        print(len(dataset))
         return(dataset)
     def train(self):
         args, config = self.args, self.config
