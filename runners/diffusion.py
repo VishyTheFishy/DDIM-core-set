@@ -121,12 +121,12 @@ class Diffusion(object):
             scores.append(loss.item())
             print(sum(scores)/len(scores),i)
         dataset_scored = zip(scores,dataset)
+        
         m = sorted(scores)[round(len(scores)*.5)]#self.config.prun_ratio)]
+        dataset = [data[0] for data in dataset_scored if x(data[0]) > m]
+        
         print(m)
-        x = lambda a : a[0] > m
-        filter(x,dataset_scored)
         print(len(dataset)
-        losses,dataset = zip(*dataset_scored)
         return(dataset)
     def train(self):
         args, config = self.args, self.config
