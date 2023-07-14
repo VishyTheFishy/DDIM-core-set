@@ -105,6 +105,8 @@ class Diffusion(object):
             num_workers=config.data.num_workers,
         )
         for i, (x, y) in enumerate(train_loader):
+            if(i==10):
+                break
             n = x.size(0)
             x = x.to(self.device)
             x = data_transform(self.config, x)
