@@ -123,7 +123,7 @@ class Diffusion(object):
         dataset_scored = zip(scores,dataset)
         
         m = sorted(scores)[round(len(scores)*.5)]#self.config.prun_ratio)]
-        dataset = [data[0] for data in dataset_scored if x(data[0]) > m]
+        dataset = [data[1] for data in dataset_scored if data[0] > m]
         
         print(m)
         print(len(dataset))
