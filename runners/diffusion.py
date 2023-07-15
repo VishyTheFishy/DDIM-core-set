@@ -118,8 +118,20 @@ class Diffusion(object):
             loss = loss_registry[config.model.type](model, x, t, e, b)
             
             print(torch.cuda.memory_allocated(0))
+            if(True):#config.curve_score):
+                loss_pos = loss_registry[config.model.type](model, x, t, e, b)   
+                los_z = torch.clone(los_pos).detatch()
+                loss_z.backward(torch.ones(targets.size()).to(self.device))         
+                grad = inputs.grad.data + 0.0
+                norm_grad = grad.norm().item()
+                z = torch.sign(grad).detach() + 0.
+                z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)  
 
-            scores.append(loss.item())
+                loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
+                grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]
+            else:
+                scores.append(loss.item())
+                 
             print(sum(scores)/len(scores),i)
         dataset_scored = zip(scores,dataset)
         
