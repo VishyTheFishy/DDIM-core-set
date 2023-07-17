@@ -256,7 +256,7 @@ class Diffusion(object):
                 # antithetic sampling
             t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*100#config.select_t
             t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
-            loss_pos = loss_registry[config.model.type](model, x, t, e, b)   
+               
             
             """loss_z = torch.clone(loss_pos).detach()
             loss_z.backward(torch.ones(x.size()).to(self.device))         
@@ -266,8 +266,20 @@ class Diffusion(object):
             z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)"""
 
             z = torch.ones(x.size()).to(self.device)
+            d = torch.ones(x.size()).to(self.device)*.1
+            
             loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
-            grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]
+            loss_orig_d = loss_registry[config.model.type](model, x + z + d, t, e, b)
+            grad_orig = (loss_orig_d - loss_orig)/torch.linalg.norm(d)
+
+            loss_pos = loss_registry[config.model.type](model, x, t, e, b)
+            loss_pos_d = loss_registry[config.model.type](model, x + d, t, e, b)
+            grad_pos = (loss_pos_d - loss_pos)/torch.linalg.norm(d)
+
+            grad_diff = (grad_orig - grad_pos)/torch.linalg.norm(z)
+
+            
+            "grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]"
             scores.append(grad_diff)
         plt.hist(scores,bins=1000)
         plt.show()
