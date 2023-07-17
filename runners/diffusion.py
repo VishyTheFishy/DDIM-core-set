@@ -249,6 +249,8 @@ class Diffusion(object):
         dataset, test_dataset = get_dataset(args, config)
         train_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
         for i, (x, y) in enumerate(train_loader):
+            if(i == 1000):
+                break
             print(torch.cuda.memory_allocated(0),i)
 
             n = x.size(0)
