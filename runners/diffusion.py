@@ -257,7 +257,7 @@ class Diffusion(object):
             t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*100#config.select_t
             t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
             loss_pos = loss_registry[config.model.type](model, x, t, e, b)   
-            loss_z = torch.clone(loss_pos).detatch()
+            loss_z = torch.clone(loss_pos).detach()
             loss_z.backward(torch.ones(targets.size()).to(self.device))         
             grad = inputs.grad.data + 0.0
             norm_grad = grad.norm().item()
