@@ -244,7 +244,7 @@ class Diffusion(object):
         model.load_state_dict(torch.load(ckpt, map_location=self.device))
         model.to(self.device)
         model = torch.nn.DataParallel(model)
-
+        scores = []
         dataset, test_dataset = get_dataset(args, config)
         train_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
         for i, (x, y) in enumerate(train_loader):
