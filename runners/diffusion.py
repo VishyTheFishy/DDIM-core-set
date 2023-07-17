@@ -289,6 +289,7 @@ class Diffusion(object):
             scores.append(grad_diff.item())
         plt.hist(scores,bins=20)
         plt.show()
+        plt.savefig()
 
             
 
