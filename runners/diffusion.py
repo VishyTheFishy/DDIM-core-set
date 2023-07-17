@@ -280,6 +280,7 @@ class Diffusion(object):
             grad_pos = (loss_pos_d - loss_pos)/torch.linalg.norm(d)
 
             grad_diff = (grad_orig - grad_pos)/torch.linalg.norm(z)
+            print(grad_diff)
 
             
             "grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]"
