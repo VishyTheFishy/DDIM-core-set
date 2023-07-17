@@ -2,6 +2,7 @@ import os
 import logging
 import time
 import glob
+import matplotlib.pyplot as plt
 
 import numpy as np
 import tqdm
@@ -129,6 +130,7 @@ class Diffusion(object):
 
                 loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
                 grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]
+                scores.append(grad_diff)
             else:
                 scores.append(loss.item())
                  
@@ -234,6 +236,45 @@ class Diffusion(object):
                 data_start = time.time()
 
     def sample(self):
+        model = Model(self.config)
+        name = "cifar10"
+        ckpt = get_ckpt_path(f"ema_{name}")
+        print("Loading checkpoint {}".format(ckpt))
+        model.load_state_dict(torch.load(ckpt, map_location=self.device))
+        model.to(self.device)
+        model = torch.nn.DataParallel(model)
+
+        dataset, test_dataset = get_dataset(args, config)
+        train_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
+        for i, (x, y) in enumerate(train_loader):
+            n = x.size(0)
+            x = x.to(self.device)
+            x = data_transform(self.config, x)
+            e = torch.randn_like(x)
+            b = self.betas
+                # antithetic sampling
+            t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*100#config.select_t
+            t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+            loss_pos = loss_registry[config.model.type](model, x, t, e, b)   
+            los_z = torch.clone(los_pos).detatch()
+            loss_z.backward(torch.ones(targets.size()).to(self.device))         
+            grad = inputs.grad.data + 0.0
+            norm_grad = grad.norm().item()
+            z = torch.sign(grad).detach() + 0.
+            z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)  
+            loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
+            grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]
+            scores.append(grad_diff)
+        plt.hist(scores,bins=1000)
+        plt.show()
+
+            
+
+        
+
+        
+        
+    def sample_(self):
         model = Model(self.config)
 
         if not self.args.use_pretrained:
