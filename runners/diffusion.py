@@ -236,6 +236,7 @@ class Diffusion(object):
                 data_start = time.time()
 
     def sample(self):
+        args, config = self.args,self.config
         model = Model(self.config)
         name = "cifar10"
         ckpt = get_ckpt_path(f"ema_{name}")
