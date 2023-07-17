@@ -270,7 +270,7 @@ class Diffusion(object):
             z = torch.sign(grad).detach() + 0.
             z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)"""
 
-            z = torch.ones(x.size()).to(self.device).001
+            z = torch.ones(x.size()).to(self.device)*.001
             d = torch.ones(x.size()).to(self.device)*.0001
             
             loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
