@@ -249,7 +249,7 @@ class Diffusion(object):
         dataset, test_dataset = get_dataset(args, config)
         train_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
         for i, (x, y) in enumerate(train_loader):
-            if(i == 1000):
+            if(i == 10000):
                 break
             print(torch.cuda.memory_allocated(0),i)
 
@@ -270,8 +270,8 @@ class Diffusion(object):
             z = torch.sign(grad).detach() + 0.
             z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)"""
 
-            z = torch.ones(x.size()).to(self.device)*.001
-            d = torch.ones(x.size()).to(self.device)*.0001
+            z = torch.ones(x.size()).to(self.device)*.0001
+            d = torch.ones(x.size()).to(self.device)*.00001
             
             loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
             loss_orig_d = loss_registry[config.model.type](model, x + z + d, t, e, b)
@@ -288,7 +288,7 @@ class Diffusion(object):
             "grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]"
             scores.append(grad_diff.item())
         print(scores)
-        plt.hist(scores,bins=20)
+        plt.hist(scores,bins=200)
         plt.savefig("hist1.png")
 
             
