@@ -238,13 +238,18 @@ class Diffusion(object):
     def sample(self):
         
         args, config = self.args,self.config
+        print(config)
         model = Model(self.config)
+        
         name = "cifar10"
         ckpt = get_ckpt_path(f"ema_{name}")
         print("Loading checkpoint {}".format(ckpt))
         model.load_state_dict(torch.load(ckpt, map_location=self.device))
         model.to(self.device)
         model = torch.nn.DataParallel(model)
+
+        print(model)
+        
         scores = []
         dataset, test_dataset = get_dataset(args, config)
         train_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
@@ -277,11 +282,11 @@ class Diffusion(object):
             loss_orig_d = loss_registry[config.model.type](model, x + z + d, t, e, b)
             grad_orig = (loss_orig_d - loss_orig)/torch.linalg.norm(d)
 
-            loss_pos = loss_registry[config.model.type](model, x, t, e, b)
-            loss_pos_d = loss_registry[config.model.type](model, x + d, t, e, b)
+            loss_pos = loss_registry[config.model.type](model, x - z, t, e, b)
+            loss_pos_d = loss_registry[config.model.type](model, x - z + d, t, e, b)
             grad_pos = (loss_pos_d - loss_pos)/torch.linalg.norm(d)
 
-            grad_diff = (grad_orig - grad_pos)/torch.linalg.norm(z)
+            grad_diff = (grad_orig - grad_pos)/(2*torch.linalg.norm(z))
             print(grad_diff)
 
             
