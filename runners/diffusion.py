@@ -287,7 +287,7 @@ class Diffusion(object):
             
             "grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]"
             scores.append(grad_diff.item())
-        plt.hist(scores,bins=1000)
+        plt.hist(scores,bins=20)
         plt.show()
 
             
