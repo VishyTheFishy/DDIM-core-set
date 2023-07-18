@@ -295,7 +295,7 @@ class Diffusion(object):
 
             loss = loss_registry[config.model.type](model, x, t, e, b)
             
-            scores.append(grad_diff.item())
+            scores.append(loss.item())
         print(scores)
         plt.hist(scores,bins=200)
         plt.savefig("hist1.png")
