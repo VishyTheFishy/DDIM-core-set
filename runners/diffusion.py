@@ -196,25 +196,24 @@ class Diffusion(object):
                 ema_helper.load_state_dict(states[4])
 
         for epoch in range(start_epoch, self.config.training.n_epochs):
-            if(epoch % 10 == 0):
-                scores = []
-                score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-                for i, (x, y) in enumerate(score_loader):
-                    if(i == 2000):
-                        break
-                    n = x.size(0)
-                    x = x.to(self.device)
-                    x = data_transform(self.config, x)
-                    e = torch.randn_like(x)
-                    b = self.betas
-                        # antithetic sampling
-                    t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
-                    t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
-                    loss = loss_registry[config.model.type](model, x, t, e, b)
-                    scores.append(loss.item())
-                print(scores)
-                plt.hist(scores,bins=200)
-                plt.savefig("hist_"+str(epoch)+".png")
+            scores = []
+            score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
+            for i, (x, y) in enumerate(score_loader):
+                if(i == 2000):
+                    break
+                n = x.size(0)
+                x = x.to(self.device)
+                x = data_transform(self.config, x)
+                e = torch.randn_like(x)
+                b = self.betas
+                    # antithetic sampling
+                t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
+                t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+                loss = loss_registry[config.model.type](model, x, t, e, b)
+                scores.append(loss.item())
+            print(scores)
+            plt.hist(scores,bins=200)
+            plt.savefig("hist_"+str(epoch)+".png")
             
             data_start = time.time()
             data_time = 0
