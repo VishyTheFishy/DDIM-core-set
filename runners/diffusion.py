@@ -200,7 +200,7 @@ class Diffusion(object):
                 scores = []
                 score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
                 for i, (x, y) in enumerate(score_loader):
-                    if(i == 200):
+                    if(i == 2000):
                         break
                     n = x.size(0)
                     x = x.to(self.device)
@@ -219,6 +219,8 @@ class Diffusion(object):
             data_start = time.time()
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
+                if(i == 200):
+                    break
                 print(epoch)
                 n = x.size(0)
                 data_time += time.time() - data_start
