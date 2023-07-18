@@ -275,7 +275,8 @@ class Diffusion(object):
             z = torch.sign(grad).detach() + 0.
             z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)"""
 
-            z = torch.ones(x.size()).to(self.device)*.0001
+            
+            """z = torch.ones(x.size()).to(self.device)*.0001
             d = torch.ones(x.size()).to(self.device)*.00001
             
             loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
@@ -288,9 +289,12 @@ class Diffusion(object):
 
             grad_diff = (grad_orig - grad_pos)/(2*torch.linalg.norm(z))
             print(grad_diff)
-
             
-            "grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]"
+            
+            grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]"""
+
+            loss = loss_registry[config.model.type](model, x, t, e, b)
+            
             scores.append(grad_diff.item())
         print(scores)
         plt.hist(scores,bins=200)
