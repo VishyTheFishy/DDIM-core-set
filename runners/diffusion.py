@@ -143,6 +143,27 @@ class Diffusion(object):
         print(m)
         print(len(dataset))
         return(dataset)
+    def getLossHist(self,model,dataset,epoch):
+        scores = []
+        train_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
+        for i, (x, y) in enumerate(train_loader):
+            if(i == 2000):
+                break
+            n = x.size(0)
+            x = x.to(self.device)
+            x = data_transform(self.config, x)
+            e = torch.randn_like(x)
+            b = self.betas
+                # antithetic sampling
+            t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
+            t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+            loss = loss_registry[config.model.type](model, x, t, e, b)
+            scores.append(loss.item())
+        print(scores)
+        plt.hist(scores,bins=200)
+        plt.savefig("hist_"+str(epoch)+".png")
+
+        
     def train(self):
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
@@ -174,12 +195,16 @@ class Diffusion(object):
                 ema_helper.load_state_dict(states[4])
 
         for epoch in range(start_epoch, self.config.training.n_epochs):
+            
             if(epoch % 10 == 0):
-                dataset = self.filterSet(dataset,model)
-                train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
+                getLossHist(model,dataset,epoch)
+                """dataset = self.filterSet(dataset,model)
+                train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)"""
+            
             data_start = time.time()
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
+                print(epoch)
                 n = x.size(0)
                 data_time += time.time() - data_start
                 model.train()
@@ -235,7 +260,7 @@ class Diffusion(object):
 
                 data_start = time.time()
 
-    def sample(self):
+    def sample_(self):
         
         args, config = self.args,self.config
         print(config)
@@ -306,7 +331,7 @@ class Diffusion(object):
 
         
         
-    def sample_(self):
+    def sample(self):
         model = Model(self.config)
 
         if not self.args.use_pretrained:
