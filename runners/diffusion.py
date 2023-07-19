@@ -95,74 +95,7 @@ class Diffusion(object):
             # [posterior_variance[1:2], betas[1:]], dim=0).log()
         elif self.model_var_type == "fixedsmall":
             self.logvar = posterior_variance.clamp(min=1e-20).log()
-    def filterSet(self,dataset,model):
-        args, config = self.args,self.config
-        scores = []
-        dataset, test_dataset = get_dataset(args, config)
-        train_loader = data.DataLoader(
-            dataset,
-            batch_size=1,
-            shuffle=False,
-            num_workers=config.data.num_workers,
-        )
-        print(len(dataset))
-        for i, (x, y) in enumerate(train_loader):
-            n = x.size(0)
-            x = x.to(self.device)
-            x = data_transform(self.config, x)
-            e = torch.randn_like(x)
-            b = self.betas
-                # antithetic sampling
-            t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*100#config.select_t
-            t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
-            print(x.device,t.device,e.device,b.device)
-            loss = loss_registry[config.model.type](model, x, t, e, b)
-            
-            print(torch.cuda.memory_allocated(0))
-            if(True):#config.curve_score):
-                loss_pos = loss_registry[config.model.type](model, x, t, e, b)   
-                los_z = torch.clone(los_pos).detatch()
-                loss_z.backward(torch.ones(targets.size()).to(self.device))         
-                grad = inputs.grad.data + 0.0
-                norm_grad = grad.norm().item()
-                z = torch.sign(grad).detach() + 0.
-                z = 1.*(h) * (z+1e-7) / (z.reshape(z.size(0), -1).norm(dim=1)[:, None, None, None]+1e-7)  
-
-                loss_orig = loss_registry[config.model.type](model, x + z, t, e, b)
-                grad_diff = torch.autograd.grad((loss_pos-loss_orig), x, )[0]
-                scores.append(grad_diff)
-            else:
-                scores.append(loss.item())
-                 
-            print(sum(scores)/len(scores),i)
-        dataset_scored = zip(scores,dataset)
         
-        m = sorted(scores)[round(len(scores)*.5)]#self.config.prun_ratio)]
-        dataset = [data[1] for data in dataset_scored if data[0] > m]
-        
-        print(m)
-        print(len(dataset))
-        return(dataset)
-        
-    def getLossHist(self,model,dataset,epoch):
-        scores = []
-        score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-        for i, (x, y) in enumerate(score_loader):
-            if(i == 200):
-                break
-            n = x.size(0)
-            x = x.to(self.device)
-            x = data_transform(self.config, x)
-            e = torch.randn_like(x)
-            b = self.betas
-                # antithetic sampling
-            t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
-            t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
-            loss = loss_registry[config.model.type](model, x, t, e, b)
-            scores.append(loss.item())
-        print(scores)
-        plt.hist(scores,bins=200)
-        plt.savefig("hist_"+str(epoch)+".png")
 
         
     def train(self):
