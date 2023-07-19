@@ -197,7 +197,9 @@ class Diffusion(object):
 
         for epoch in range(start_epoch, self.config.training.n_epochs):
             scores = []
+            coreset = []
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
+            threshold = 600
             for i, (x, y) in enumerate(score_loader):
                 if(i == 2000):
                     break
@@ -210,7 +212,10 @@ class Diffusion(object):
                 t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
                 t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
                 loss = loss_registry[config.model.type](model, x, t, e, b)
+                if(loss.item() > threshold):
+                    coreset.append(i)
                 scores.append(loss.item())
+            train_loader = torch.utils.data.Subset(dataset, coreset)
             print(scores)
             plt.hist(scores,bins=200)
             plt.savefig("hist_"+str(epoch)+".png")
