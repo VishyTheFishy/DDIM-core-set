@@ -195,7 +195,7 @@ class Diffusion(object):
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             threshold = 600
             for i, (x, y) in enumerate(score_loader):
-                if(i=2000):
+                if(i==2000):
                     break
                 n = x.size(0)
                 x = x.to(self.device)
