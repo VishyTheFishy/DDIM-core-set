@@ -193,10 +193,8 @@ class Diffusion(object):
             scores = []
             coreset = []
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-            threshold = 600
+            threshold = 1000
             for i, (x, y) in enumerate(score_loader):
-                if(i==2000):
-                    break
                 n = x.size(0)
                 x = x.to(self.device)
                 x = data_transform(self.config, x)
@@ -210,6 +208,7 @@ class Diffusion(object):
                     coreset.append(i)
                 scores.append(loss.item())
             dataset = torch.utils.data.Subset(dataset, coreset)
+            print(len(dataset))
             print(scores)
             plt.hist(scores,bins=200)
             plt.savefig("hist_"+str(epoch)+".png")
