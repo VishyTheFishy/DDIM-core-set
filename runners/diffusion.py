@@ -190,7 +190,7 @@ class Diffusion(object):
                     torch.save(states, os.path.join(self.args.log_path, "ckpt.pth"))
 
                 data_start = time.time()
-                        scores = []
+            scores = []
             coreset = []
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             threshold = 600
