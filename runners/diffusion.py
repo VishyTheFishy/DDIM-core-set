@@ -126,7 +126,7 @@ class Diffusion(object):
             step = states[3]
             if self.config.model.ema:
                 ema_helper.load_state_dict(states[4])
-
+        score_mean = []
         for epoch in range(start_epoch, self.config.training.n_epochs):
             train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
         
@@ -210,6 +210,8 @@ class Diffusion(object):
             print(scores)
             plt.hist(scores,bins=200)
             plt.savefig("hist_"+str(epoch)+".png")
+            score_mean.append(sum(scores)/len(scores))
+        print(score_mean)
 
 
     def sample_(self):
