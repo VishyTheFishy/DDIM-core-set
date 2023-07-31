@@ -103,7 +103,7 @@ class Diffusion(object):
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
         model = Model(config)
-
+        test_loader = data.DataLoader(test_dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
         model = model.to(self.device)
         model = torch.nn.DataParallel(model)
 
@@ -127,7 +127,30 @@ class Diffusion(object):
             if self.config.model.ema:
                 ema_helper.load_state_dict(states[4])
         score_mean = [500]
-        for epoch in range(start_epoch, self.config.training.n_epochs):
+        test_losses = []
+        steps = []
+        for epoch in range(start_epoch, 25):#self.config.training.n_epochs):
+            total = 0
+            for i, (x, y) in enumerate(test_loader):
+                print(epoch)
+                n = x.size(0)
+                data_time += time.time() - data_start
+                model.train()
+
+                x = x.to(self.device)
+                x = data_transform(self.config, x)
+                e = torch.randn_like(x)
+                b = self.betas
+                t = torch.ones(size=(n // 2 + 1,).type(torch.LongTensor).to(self.device)*500
+                #t = torch.randint(low=0, high=self.num_timesteps, size=(n // 2 + 1,)).to(self.device)
+                t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+                loss = loss_registry[config.model.type](model, x, t, e, b)
+                total += loss.item()
+                print(total)
+            test_losses.append(total)
+            steps.append(step)
+                
+
             train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
 
             data_start = time.time()
@@ -212,6 +235,8 @@ class Diffusion(object):
             plt.savefig("hist_"+str(epoch)+".png")
             score_mean.append(sum(scores)/len(scores))
         print(score_mean)
+        plt.plot(steps,test_losses)
+        plt.savefig("losscurve.png")
 
 
     def sample_(self):
