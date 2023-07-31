@@ -126,15 +126,13 @@ class Diffusion(object):
             step = states[3]
             if self.config.model.ema:
                 ema_helper.load_state_dict(states[4])
-        score_mean = []
+        score_mean = [500]
         for epoch in range(start_epoch, self.config.training.n_epochs):
             train_loader = data.DataLoader(dataset,batch_size=config.training.batch_size,shuffle=True,num_workers=config.data.num_workers,)
 
             data_start = time.time()
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
-                if(i == 2):
-                    break
                 print(epoch)
                 n = x.size(0)
                 data_time += time.time() - data_start
@@ -193,11 +191,8 @@ class Diffusion(object):
             scores = []
             coreset = []
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-            threshold = 1000
+            threshold = score_mean[-1]*.75
             for i, (x, y) in enumerate(score_loader):
-                if(i == 2):
-                    break
-
                 n = x.size(0)
                 x = x.to(self.device)
                 x = data_transform(self.config, x)
