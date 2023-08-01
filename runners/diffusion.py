@@ -134,7 +134,6 @@ class Diffusion(object):
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
                 n = x.size(0)
-                data_time += time.time() - data_start
                 model.train()
 
                 x = x.to(self.device)
