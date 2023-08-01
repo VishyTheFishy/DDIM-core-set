@@ -141,8 +141,7 @@ class Diffusion(object):
                 x = data_transform(self.config, x)
                 e = torch.randn_like(x)
                 b = self.betas
-                t = torch.ones(size=(n // 2 + 1,).type(torch.LongTensor).to(self.device)*500
-                #t = torch.randint(low=0, high=self.num_timesteps, size=(n // 2 + 1,)).to(self.device)
+                t = torch.randint(low=0, high=self.num_timesteps, size=(n // 2 + 1,)).to(self.device)
                 t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
                 loss = loss_registry[config.model.type](model, x, t, e, b)
                 total += loss.item()
