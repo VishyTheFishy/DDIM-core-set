@@ -3,7 +3,7 @@ import logging
 import time
 import glob
 import matplotlib.pyplot as plt
-
+import csv
 import numpy as np
 import tqdm
 import torch
@@ -212,7 +212,7 @@ class Diffusion(object):
             scores = []
             coreset = []
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-            threshold = score_mean[-1]*.75
+            threshold = score_mean[-1]*.85
             for i, (x, y) in enumerate(score_loader):
                 n = x.size(0)
                 x = x.to(self.device)
@@ -226,14 +226,21 @@ class Diffusion(object):
                 if(loss.item() > threshold):
                     coreset.append(i)
                 scores.append(loss.item())
-            dataset = torch.utils.data.Subset(dataset, coreset)
+            if(True):
+                dataset = torch.utils.data.Subset(dataset, coreset)
             print(len(dataset))
-            print(scores)
             plt.hist(scores,bins=200)
             plt.savefig("hist_"+str(epoch)+".png")
             score_mean.append(sum(scores)/len(scores))
         print(score_mean)
+        f = open('losses.csv', 'w')
+        writer = csv.writer(f)
+        writer.writerow(steps)
+        writer.writerow(test_losses)
+        
+        plt.close()
         plt.plot(steps,test_losses)
+        plt.yscale('log')
         plt.savefig("losscurve.png")
 
 
