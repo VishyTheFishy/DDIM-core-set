@@ -218,7 +218,7 @@ class Diffusion(object):
                 dataset = clusters
 
                 
-            if(coreset_method == "loss")
+            if(coreset_method == "loss"):
                 scores = []
                 coreset = []
                 score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
