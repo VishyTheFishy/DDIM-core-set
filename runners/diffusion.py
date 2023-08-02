@@ -8,6 +8,8 @@ import numpy as np
 import tqdm
 import torch
 import torch.utils.data as data
+from k_means import KMeans
+import pandas as pd
 
 from models.diffusion import Model
 from models.ema import EMAHelper
@@ -99,6 +101,7 @@ class Diffusion(object):
 
         
     def train(self):
+        coreset_method = "z_centroid"
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
@@ -209,30 +212,36 @@ class Diffusion(object):
                     torch.save(states, os.path.join(self.args.log_path, "ckpt.pth"))
 
                 data_start = time.time()
-            """scores = []
-            coreset = []
-            score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-            threshold = score_mean[-1]*.85
-            for i, (x, y) in enumerate(score_loader):
-                n = x.size(0)
-                x = x.to(self.device)
-                x = data_transform(self.config, x)
-                e = torch.randn_like(x)
-                b = self.betas
-                    # antithetic sampling
-                t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
-                t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
-                loss = loss_registry[config.model.type](model, x, t, e, b)
-                if(loss.item() > threshold):
-                    coreset.append(i)
-                scores.append(loss.item())
-            if(True):
+            if(coreset_method == "z_centroid"):
+                model = KMeans(max_iter = 500, tolerance = 0.001, n_clusters = 5, runs = 100)
+                (clusters, data_with_clusters) = model.fit(dataset)
+                dataset = clusters
+
+                
+            if(coreset_method == "loss")
+                scores = []
+                coreset = []
+                score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
+                threshold = score_mean[-1]*.85
+                for i, (x, y) in enumerate(score_loader):
+                    n = x.size(0)
+                    x = x.to(self.device)
+                    x = data_transform(self.config, x)
+                    e = torch.randn_like(x)
+                    b = self.betas
+                        # antithetic sampling
+                    t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
+                    t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+                    loss = loss_registry[config.model.type](model, x, t, e, b)
+                    if(loss.item() > threshold):
+                        coreset.append(i)
+                    scores.append(loss.item())
                 dataset = torch.utils.data.Subset(dataset, coreset)
-            print(len(dataset))
-            plt.hist(scores,bins=200)
-            plt.savefig("hist_"+str(epoch)+".png")
-            score_mean.append(sum(scores)/len(scores))"""
-        #print(score_mean)
+                print(len(dataset))
+                plt.hist(scores,bins=200)
+                plt.savefig("hist_"+str(epoch)+".png")
+                score_mean.append(sum(scores)/len(scores))
+            
         f = open('losses.csv', 'w')
         writer = csv.writer(f)
         writer.writerow(steps)
