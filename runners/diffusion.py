@@ -209,7 +209,7 @@ class Diffusion(object):
                     torch.save(states, os.path.join(self.args.log_path, "ckpt.pth"))
 
                 data_start = time.time()
-            scores = []
+            """scores = []
             coreset = []
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             threshold = score_mean[-1]*.85
@@ -231,8 +231,8 @@ class Diffusion(object):
             print(len(dataset))
             plt.hist(scores,bins=200)
             plt.savefig("hist_"+str(epoch)+".png")
-            score_mean.append(sum(scores)/len(scores))
-        print(score_mean)
+            score_mean.append(sum(scores)/len(scores))"""
+        #print(score_mean)
         f = open('losses.csv', 'w')
         writer = csv.writer(f)
         writer.writerow(steps)
