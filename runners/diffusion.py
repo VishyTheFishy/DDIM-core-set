@@ -213,8 +213,11 @@ class Diffusion(object):
 
                 data_start = time.time()
             if(coreset_method == "z_centroid"):
+                print("here")
                 kmodel = KMeans(max_iter = 500, tolerance = 0.001, n_clusters = 5, runs = 100)
                 (clusters, data_with_clusters) = kmodel.fit(dataset)
+                print(len(clusters))
+                print(clusters)
                 dataset = clusters
 
                 
