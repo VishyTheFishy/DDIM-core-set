@@ -136,6 +136,8 @@ class Diffusion(object):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
+                print(i)
+                print(torch.cuda.memory_allocated(0))
                 n = x.size(0)
                 model.train()
 
