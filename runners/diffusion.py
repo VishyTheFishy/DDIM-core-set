@@ -136,28 +136,16 @@ class Diffusion(object):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
-                print(i)
-                print(torch.cuda.memory_allocated(0))
                 n = x.size(0)
-                print(torch.cuda.memory_allocated(0))
                 model.train()
-                print(torch.cuda.memory_allocated(0))
                 x = x.to(self.device)
-                print(torch.cuda.memory_allocated(0))
                 x = data_transform(self.config, x)
-                print(torch.cuda.memory_allocated(0))
                 e = torch.randn_like(x)
-                print(torch.cuda.memory_allocated(0))
                 b = self.betas
-                print(torch.cuda.memory_allocated(0))
                 t = torch.randint(low=0, high=self.num_timesteps, size=(n // 2 + 1,)).to(self.device)
-                print(torch.cuda.memory_allocated(0))
                 t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
-                print(torch.cuda.memory_allocated(0))
                 loss = loss_registry[config.model.type](model, x, t, e, b).item()
-                print(torch.cuda.memory_allocated(0))
                 total += loss
-                print(torch.cuda.memory_allocated(0))
                 print(total)
             test_losses.append(total)
             steps.append(step)
@@ -223,10 +211,11 @@ class Diffusion(object):
                     torch.save(states, os.path.join(self.args.log_path, "ckpt.pth"))
 
                 data_start = time.time()
+            score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "z_centroid"):
                 print("here")
                 kmodel = KMeans(max_iter = 500, tolerance = 0.001, n_clusters = 5, runs = 100)
-                (clusters, data_with_clusters) = kmodel.fit(dataset)
+                (clusters, data_with_clusters) = kmodel.fit(score_loader)
                 print(len(clusters))
                 print(clusters)
                 dataset = clusters
@@ -235,7 +224,7 @@ class Diffusion(object):
             if(coreset_method == "loss"):
                 scores = []
                 coreset = []
-                score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
+                
                 threshold = score_mean[-1]*.85
                 for i, (x, y) in enumerate(score_loader):
                     n = x.size(0)
