@@ -154,9 +154,9 @@ class Diffusion(object):
                 print(torch.cuda.memory_allocated(0))
                 t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
                 print(torch.cuda.memory_allocated(0))
-                loss = loss_registry[config.model.type](model, x, t, e, b)
+                loss = loss_registry[config.model.type](model, x, t, e, b).item()
                 print(torch.cuda.memory_allocated(0))
-                total += loss.item()
+                total += loss
                 print(torch.cuda.memory_allocated(0))
                 print(total)
             test_losses.append(total)
