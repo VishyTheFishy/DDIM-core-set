@@ -340,10 +340,11 @@ class Model(nn.Module):
         h = self.conv_out(h)
         return h
         
-    def getEmbed(self, x, t):
+    def getEmbed(self, x):
         assert x.shape[2] == x.shape[3] == self.resolution
 
         # timestep embedding
+        t = 100
         temb = get_timestep_embedding(t, self.ch)
         temb = self.temb.dense[0](temb)
         temb = nonlinearity(temb)
