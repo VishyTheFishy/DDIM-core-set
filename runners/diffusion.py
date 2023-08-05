@@ -213,7 +213,8 @@ class Diffusion(object):
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "z_centroid"):
-                print("here")
+                print(Model)
+                getEmbed = Model.
                 kmodel = KMeans(max_iter = 500, tolerance = 0.001, n_clusters = 5, runs = 100)
                 (clusters, data_with_clusters) = kmodel.fit(score_loader)
                 print(len(clusters))
