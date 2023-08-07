@@ -11,6 +11,8 @@ import torch.utils.data as data
 from k_means import KMeans
 import pandas as pd
 from torchvision import transforms
+from sklearn.cluster import MiniBatchKMeans
+import numpy as np
 
 from models.diffusion import Model
 from models.ema import EMAHelper
@@ -217,12 +219,16 @@ class Diffusion(object):
                 print(Model)
                 embedTransform = transforms.Lambda(Model.getEmbed())
                 embedData = embedTransform(score_loader)
-                kmodel = KMeans(max_iter = 500, tolerance = 0.001, n_clusters = 5, runs = 100)
-                (clusters, data_with_clusters) = kmodel.fit(embedData)
-                print(len(clusters))
+                kmeans = MiniBatchKMeans(n_clusters=1000,
+                    random_state=0,
+                    batch_size=6,
+                    n_init="auto")
+                for embedding in embedData:
+                    kmeans = kmeans.partial_fit(embedding)
+                    
+                print(len(kmeans.cluster_centers_))
                 
-                print(clusters)
-                for i
+                print(kmeans.cluster_centers_)
 
                 
             if(coreset_method == "loss"):
