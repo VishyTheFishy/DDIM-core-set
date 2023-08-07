@@ -366,6 +366,7 @@ class Model(nn.Module):
         h = self.mid.block_1(h, temb)
         h = self.mid.attn_1(h)
         h = self.mid.block_2(h, temb)
+        torch.flatten(h)
         return(h)
 
    
