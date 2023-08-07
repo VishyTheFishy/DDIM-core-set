@@ -10,6 +10,7 @@ import torch
 import torch.utils.data as data
 from k_means import KMeans
 import pandas as pd
+from torchvision import transforms
 
 from models.diffusion import Model
 from models.ema import EMAHelper
@@ -214,12 +215,14 @@ class Diffusion(object):
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "z_centroid"):
                 print(Model)
-                getEmbed = Model.
+                embedTransform = transforms.Lambda(Model.getEmbed())
+                embedData = embedTransform(score_loader)
                 kmodel = KMeans(max_iter = 500, tolerance = 0.001, n_clusters = 5, runs = 100)
-                (clusters, data_with_clusters) = kmodel.fit(score_loader)
+                (clusters, data_with_clusters) = kmodel.fit(embedData)
                 print(len(clusters))
+                
                 print(clusters)
-                dataset = clusters
+                for i
 
                 
             if(coreset_method == "loss"):
