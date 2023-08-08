@@ -219,12 +219,12 @@ class Diffusion(object):
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=1000,
                     random_state=0,
-                    batch_size=6,
+                    batch_size=128,
                     n_init="auto")
                 for i, (x, y) in enumerate(train_loader):
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
-                    embedding = model.getEmbed(x)
+                    embedding = model(x,100,True)
 
                     kmeans = kmeans.partial_fit(embedding)
                     
