@@ -234,6 +234,7 @@ class Diffusion(object):
                 print(len(kmeans.cluster_centers_))
                 
                 print(kmeans.cluster_centers_)
+                print(kmeans.predict(score_loader)
 
                 
             if(coreset_method == "loss"):
