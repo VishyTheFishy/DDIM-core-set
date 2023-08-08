@@ -327,7 +327,7 @@ class Model(nn.Module):
 
         if(getEmbed):
             print(h.size())
-            torch.flatten(h)
+            h = torch.flatten(h,start_dim=1)
             h = h.detach().cpu().numpy()
             print(numpy.shape(h))
 
