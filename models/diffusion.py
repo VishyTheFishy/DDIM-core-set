@@ -326,6 +326,8 @@ class Model(nn.Module):
 
         if(getEmbed):
             torch.flatten(h)
+            h = h.detach().cpu().numpy()
+
             return(h)
 
         # upsampling
