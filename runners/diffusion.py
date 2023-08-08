@@ -216,14 +216,16 @@ class Diffusion(object):
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "z_centroid"):
-                print(Model)
-                embedTransform = transforms.Lambda(Model.getEmbed())
-                embedData = embedTransform(score_loader)
+                print(model)
                 kmeans = MiniBatchKMeans(n_clusters=1000,
                     random_state=0,
                     batch_size=6,
                     n_init="auto")
-                for embedding in embedData:
+                for i, (x, y) in enumerate(train_loader):
+                    x = x.to(self.device)
+                    x = data_transform(self.config, x)
+                    embedding = model.getEmbed(x)
+
                     kmeans = kmeans.partial_fit(embedding)
                     
                 print(len(kmeans.cluster_centers_))
