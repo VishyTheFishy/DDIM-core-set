@@ -224,7 +224,8 @@ class Diffusion(object):
                 for i, (x, y) in enumerate(train_loader):
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
-                    embedding = model(x,100,True)
+                    t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*500
+                    embedding = model(x,t,True)
 
                     kmeans = kmeans.partial_fit(embedding)
                     
