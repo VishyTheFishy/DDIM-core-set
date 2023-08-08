@@ -325,8 +325,10 @@ class Model(nn.Module):
         h = self.mid.block_2(h, temb)
 
         if(getEmbed):
+            print(h.size())
             torch.flatten(h)
             h = h.detach().cpu().numpy()
+            print(numpy.shape(h))
 
             return(h)
 
