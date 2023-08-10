@@ -231,8 +231,8 @@ class Diffusion(object):
                     kmeans = kmeans.partial_fit(embedding)
 
                     
-                clusters_distance = numpy.ones(100)*1000
-                closest_clusters = numpy.zeros(100)
+                clusters_distance = np.ones(100)*1000
+                closest_clusters = np.zeros(100)
                 
                 for i, (x, y) in enumerate(score_loader):
                     x = x.to(self.device)
@@ -242,7 +242,7 @@ class Diffusion(object):
                     cluster = kmeans.predict(embedding)[0]
                     distance = kmeans.transform(embedding)[0][cluster]
                     if(distance < clusters_distance[cluster]):
-                        closest_clusters = numpy.zeros(100)[cluster] = i
+                        closest_clusters[cluster] = i
                         clusters_distance[cluster] = distance
                 coreset = closest_clusters
                 dataset = torch.utils.data.Subset(dataset, coreset)
