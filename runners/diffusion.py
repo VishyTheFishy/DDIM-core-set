@@ -248,7 +248,7 @@ class Diffusion(object):
                         closest_clusters[cluster] = i
                         clusters_distance[cluster] = distance
                     print(closest_clusters)
-                coreset = closest_clusters
+                coreset = list(closest_clusters)
                 dataset = torch.utils.data.Subset(dataset, coreset)
             
                 
