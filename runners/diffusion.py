@@ -235,6 +235,7 @@ class Diffusion(object):
                 closest_clusters = np.zeros(100)
                 
                 for i, (x, y) in enumerate(score_loader):
+                    print(i)
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
                     t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*500
@@ -244,6 +245,7 @@ class Diffusion(object):
                     if(distance < clusters_distance[cluster]):
                         closest_clusters[cluster] = i
                         clusters_distance[cluster] = distance
+                    print(closest_clusters)
                 coreset = closest_clusters
                 dataset = torch.utils.data.Subset(dataset, coreset)
             
