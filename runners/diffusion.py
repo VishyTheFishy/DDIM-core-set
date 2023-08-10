@@ -135,7 +135,7 @@ class Diffusion(object):
         score_mean = [500]
         test_losses = []
         steps = []
-        for epoch in range(start_epoch, 25):#self.config.training.n_epochs):
+        for epoch in range(start_epoch, 2000):#self.config.training.n_epochs):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
@@ -217,7 +217,7 @@ class Diffusion(object):
 
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-            if(coreset_method == "z_centroid"):
+            if(coreset_method == "z_centroid" and epoch == 2):
                 k_loader = data.DataLoader(dataset,batch_size=5000,shuffle=False,num_workers=config.data.num_workers)
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
