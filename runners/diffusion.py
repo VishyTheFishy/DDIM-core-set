@@ -160,8 +160,6 @@ class Diffusion(object):
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
                 print(epoch)
-                if(i==10):
-                    break
                 n = x.size(0)
                 data_time += time.time() - data_start
                 model.train()
@@ -218,13 +216,12 @@ class Diffusion(object):
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "z_centroid" and epoch == 2):
-                k_loader = data.DataLoader(dataset,batch_size=5000,shuffle=False,num_workers=config.data.num_workers)
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
                     random_state=0,
-                    batch_size=5000,
+                    batch_size=128,
                     n_init="auto")
-                for i, (x, y) in enumerate(k_loader):
+                for i, (x, y) in enumerate(train_loader):
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
                     t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*500
