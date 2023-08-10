@@ -238,7 +238,7 @@ class Diffusion(object):
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
                     t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*500
-                    embedding = np.expand_dims(model(x,t,True), axis=0)
+                    embedding = model(x,t,True)
                     cluster = kmeans.predict(embedding)[0]
                     distance = kmeans.transform(embedding)[0][cluster]
                     if(distance < clusters_distance[cluster]):
