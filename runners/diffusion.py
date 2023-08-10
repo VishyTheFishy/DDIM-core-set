@@ -242,6 +242,7 @@ class Diffusion(object):
                     embedding = model(x,t,True)
                     cluster = kmeans.predict(embedding)[0]
                     distance = kmeans.transform(embedding)[0][cluster]
+                    print(distance)
                     if(distance < clusters_distance[cluster]):
                         closest_clusters[cluster] = i
                         clusters_distance[cluster] = distance
