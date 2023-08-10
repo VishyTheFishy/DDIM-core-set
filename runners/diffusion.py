@@ -233,6 +233,7 @@ class Diffusion(object):
                     
                 clusters_distance = np.ones(100)*1000
                 closest_clusters = np.zeros(100)
+                cluster_count = np.zeros(100)
                 
                 for i, (x, y) in enumerate(score_loader):
                     print(i)
@@ -241,6 +242,8 @@ class Diffusion(object):
                     t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*500
                     embedding = model(x,t,True)
                     cluster = kmeans.predict(embedding)[0]
+                    cluster_count[cluster] += 1
+                    print(cluster_count)
                     distance = kmeans.transform(embedding)[0][cluster]
                     print(distance)
                     if(distance < clusters_distance[cluster]):
