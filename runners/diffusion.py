@@ -135,7 +135,7 @@ class Diffusion(object):
         score_mean = [500]
         test_losses = []
         steps = []
-        for epoch in range(start_epoch, 2000):#self.config.training.n_epochs):
+        for epoch in range(start_epoch, 25):#self.config.training.n_epochs):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
