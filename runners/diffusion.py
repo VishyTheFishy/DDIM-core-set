@@ -159,6 +159,8 @@ class Diffusion(object):
             data_start = time.time()
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
+                if(i==3):
+                    break
                 print(epoch)
                 n = x.size(0)
                 data_time += time.time() - data_start
@@ -243,6 +245,7 @@ class Diffusion(object):
                     cluster = kmeans.predict(embedding)[0]
                     cluster_count[cluster] += 1
                     distance = kmeans.transform(embedding)[0][cluster]
+                    print(closest_clusters)
                     for j, current in enumerate(clusters_distance[cluster]):
                         if(current > distance):
                             clusters_distance[cluster] = np.insert(clusters_distance[cluster],j,distance)
