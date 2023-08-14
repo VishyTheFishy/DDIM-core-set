@@ -216,6 +216,7 @@ class Diffusion(object):
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "z_centroid" and epoch == 2):
+                m = 50
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
                     random_state=0,
@@ -229,8 +230,8 @@ class Diffusion(object):
                     kmeans = kmeans.partial_fit(embedding)
 
                     
-                clusters_distance = np.ones(100)*1000
-                closest_clusters = np.zeros(100)
+                clusters_distance = np.zeros((100,0))
+                closest_clusters = np.zeros((100,0))
                 cluster_count = np.zeros(100)
                 
                 for i, (x, y) in enumerate(score_loader):
@@ -241,14 +242,22 @@ class Diffusion(object):
                     embedding = model(x,t,True)
                     cluster = kmeans.predict(embedding)[0]
                     cluster_count[cluster] += 1
-                    print(cluster_count)
                     distance = kmeans.transform(embedding)[0][cluster]
-                    print(distance)
-                    if(distance < clusters_distance[cluster]):
-                        closest_clusters[cluster] = i
-                        clusters_distance[cluster] = distance
-                    print(closest_clusters)
-                coreset = list(map(int, list(closest_clusters)))
+                    for j, current in enumerate(clusters_distance[cluster]):
+                        if(current > distance):
+                            clusters_distance[cluster] = np.insert(clusters_distance[cluster],j,distance)
+                            closest_clusters[cluster] = np.insert(closest_clusters[cluster],j,i)
+                            break
+                    else:
+                        clusters_distance[cluster] = np.append(clusters_distance[cluster],distance)
+                        closest_clusters[cluster] = np.append(closest_clusters[cluster],i)
+                
+                coreset = []
+                for cluster in closest_clusters:
+                    for i, point in enumerate(cluster):
+                        if(i == 50):
+                            break
+                        coreset.append(point)
                 dataset = torch.utils.data.Subset(dataset, coreset)
             
                 
