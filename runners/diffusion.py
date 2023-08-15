@@ -278,6 +278,7 @@ class Diffusion(object):
                     loss = loss_registry[config.model.type](model, x, t, e, b)
                     if(loss.item() > threshold):
                         coreset.append(i)
+                    print(loss.item())
                     scores.append(loss.item())
                 dataset = torch.utils.data.Subset(dataset, coreset)
                 print(len(dataset))
