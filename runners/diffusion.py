@@ -248,12 +248,12 @@ class Diffusion(object):
                     print(closest_clusters)
                     for j, current in enumerate(clusters_distance[cluster]):
                         if(current > distance):
-                            clusters_distance[cluster] = clusters_distance[cluster].insert(j,distance)
-                            closest_clusters[cluster] = closest_clusters[cluster].insert(j,i)
+                            clusters_distance[cluster].insert(j,distance)
+                            closest_clusters[cluster].insert(j,i)
                             break
                     else:
-                        clusters_distance[cluster] = clusters_distance[cluster].append(distance)
-                        closest_clusters[cluster] = closest_clusters[cluster].append(i)
+                        clusters_distance[cluster].append(distance)
+                        closest_clusters[cluster].append(i)
                 
                 coreset = []
                 for cluster in closest_clusters:
