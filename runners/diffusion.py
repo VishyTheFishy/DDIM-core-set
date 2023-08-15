@@ -159,8 +159,6 @@ class Diffusion(object):
             data_start = time.time()
             data_time = 0
             for i, (x, y) in enumerate(train_loader):
-                if(i==3):
-                    break
                 print(epoch)
                 n = x.size(0)
                 data_time += time.time() - data_start
