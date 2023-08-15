@@ -232,8 +232,8 @@ class Diffusion(object):
                     kmeans = kmeans.partial_fit(embedding)
 
                     
-                clusters_distance = np.zeros((100,0))
-                closest_clusters = np.zeros((100,0))
+                clusters_distance = [[] for _ in range(100)]
+                closest_clusters = [[] for _ in range(100)]
                 cluster_count = np.zeros(100)
                 
                 for i, (x, y) in enumerate(score_loader):
@@ -248,12 +248,12 @@ class Diffusion(object):
                     print(closest_clusters)
                     for j, current in enumerate(clusters_distance[cluster]):
                         if(current > distance):
-                            clusters_distance[cluster] = np.insert(clusters_distance[cluster],j,distance)
-                            closest_clusters[cluster] = np.insert(closest_clusters[cluster],j,i)
+                            clusters_distance[cluster] = clusters_distance[cluster].insert(j,distance)
+                            closest_clusters[cluster] = closest_clusters[cluster].insert(j,i)
                             break
                     else:
-                        clusters_distance[cluster] = np.append(clusters_distance[cluster],distance)
-                        closest_clusters[cluster] = np.append(closest_clusters[cluster],i)
+                        clusters_distance[cluster] = clusters_distance[cluster].append(distance)
+                        closest_clusters[cluster] = closest_clusters[cluster].append(i)
                 
                 coreset = []
                 for cluster in closest_clusters:
