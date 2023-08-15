@@ -245,7 +245,6 @@ class Diffusion(object):
                     cluster = kmeans.predict(embedding)[0]
                     cluster_count[cluster] += 1
                     distance = kmeans.transform(embedding)[0][cluster]
-                    print(closest_clusters)
                     for j, current in enumerate(clusters_distance[cluster]):
                         if(current > distance):
                             clusters_distance[cluster].insert(j,distance)
