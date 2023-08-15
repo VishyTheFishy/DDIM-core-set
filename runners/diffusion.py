@@ -273,7 +273,7 @@ class Diffusion(object):
                     e = torch.randn_like(x)
                     b = self.betas
                         # antithetic sampling
-                    t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
+                    t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*980#config.select_t
                     t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
                     loss = loss_registry[config.model.type](model, x, t, e, b)
                     if(loss.item() > threshold):
