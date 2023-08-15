@@ -132,7 +132,7 @@ class Diffusion(object):
             step = states[3]
             if self.config.model.ema:
                 ema_helper.load_state_dict(states[4])
-        score_mean = [500]
+        score_mean = [10]
         test_losses = []
         steps = []
         for epoch in range(start_epoch, 25):#self.config.training.n_epochs):
