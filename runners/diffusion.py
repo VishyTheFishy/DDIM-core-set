@@ -263,7 +263,7 @@ class Diffusion(object):
                 dataset = torch.utils.data.Subset(dataset, coreset)
             
                 
-            if(coreset_method == "loss"):
+            if(coreset_method == "loss" and len(dataset) > 5000):
                 scores = []
                 coreset = []
                 
