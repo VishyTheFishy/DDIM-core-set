@@ -106,7 +106,7 @@ class Diffusion(object):
 
         
     def train(self):
-        coreset_method = "loss"
+        coreset_method = "none"
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
@@ -137,7 +137,7 @@ class Diffusion(object):
         cutoffs = [0]
         test_losses = []
         steps = []
-        for epoch in range(start_epoch, 25):#self.config.training.n_epochs):
+        for epoch in range(start_epoch, 250):#self.config.training.n_epochs):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
