@@ -13,6 +13,8 @@ import pandas as pd
 from torchvision import transforms
 from sklearn.cluster import MiniBatchKMeans
 import numpy as np
+import statistics
+
 
 from models.diffusion import Model
 from models.ema import EMAHelper
@@ -132,7 +134,7 @@ class Diffusion(object):
             step = states[3]
             if self.config.model.ema:
                 ema_helper.load_state_dict(states[4])
-        score_mean = [0]
+        cutoffs = [0]
         test_losses = []
         steps = []
         for epoch in range(start_epoch, 25):#self.config.training.n_epochs):
@@ -215,7 +217,7 @@ class Diffusion(object):
 
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
-            if(coreset_method == "z_centroid" and epoch == 2):
+            if(coreset_method == "k_means" and epoch == 2):
                 m = 50
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
@@ -265,7 +267,7 @@ class Diffusion(object):
                 scores = []
                 coreset = []
                 
-                threshold = score_mean[-1]*.85
+                threshold = cutoffs[-1]
                 for i, (x, y) in enumerate(score_loader):
                     n = x.size(0)
                     x = x.to(self.device)
@@ -284,7 +286,7 @@ class Diffusion(object):
                 print(len(dataset))
                 plt.hist(scores,bins=200)
                 plt.savefig("hist_"+str(epoch)+".png")
-                score_mean.append(sum(scores)/len(scores))
+                cutoffs.append(statistics.mean(scores)-statistics.stdev(scores))
             
         f = open('losses.csv', 'w')
         writer = csv.writer(f)
