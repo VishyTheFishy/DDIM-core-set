@@ -134,7 +134,6 @@ class Diffusion(object):
             step = states[3]
             if self.config.model.ema:
                 ema_helper.load_state_dict(states[4])
-        cutoffs = [0]
         test_losses = []
         steps = []
         for epoch in range(start_epoch, 2500):#self.config.training.n_epochs):
@@ -270,6 +269,20 @@ class Diffusion(object):
                 
                 threshold = cutoffs[-1]
                 for i, (x, y) in enumerate(score_loader):
+                    if(i == 1000):
+                        break
+                    n = x.size(0)
+                    x = x.to(self.device)
+                    x = data_transform(self.config, x)
+                    e = torch.randn_like(x)
+                    b = self.betas
+                        # antithetic sampling
+                    t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*980#config.select_t
+                    t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
+                    loss = loss_registry[config.model.type](model, x, t, e, b)
+                    scores.append(loss.item())
+                threshold = statistics.mean(scores)-statistics.stdev(scores)
+                for i, (x, y) in enumerate(score_loader):
                     n = x.size(0)
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
@@ -282,12 +295,11 @@ class Diffusion(object):
                     if(loss.item() > threshold):
                         coreset.append(i)
                     print(loss.item())
-                    scores.append(loss.item())
                 dataset = torch.utils.data.Subset(dataset, coreset)
                 print(len(dataset))
-                plt.hist(scores,bins=200)
+                plt.hist(scores,bins=50)
                 plt.savefig("hist_"+str(epoch)+".png")
-                cutoffs.append(statistics.mean(scores)-statistics.stdev(scores))
+
             
         f = open('losses.csv', 'w')
         writer = csv.writer(f)
