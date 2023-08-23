@@ -106,7 +106,7 @@ class Diffusion(object):
 
         
     def train(self):
-        coreset_method = "loss"
+        coreset_method = "k_means"
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
@@ -234,6 +234,8 @@ class Diffusion(object):
                     
                 clusters_distance = [[] for _ in range(100)]
                 closest_clusters = [[] for _ in range(100)]
+
+                clusters_losses = [[] for _ in range(100)]
                 cluster_count = np.zeros(100)
                 
                 for i, (x, y) in enumerate(score_loader):
@@ -241,19 +243,30 @@ class Diffusion(object):
                     x = x.to(self.device)
                     x = data_transform(self.config, x)
                     t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*500
+                    e = torch.randn_like(x)
+                    b = self.betas
+
                     embedding = model(x,t,True)
                     cluster = kmeans.predict(embedding)[0]
                     cluster_count[cluster] += 1
                     distance = kmeans.transform(embedding)[0][cluster]
+                    loss = loss_registry[config.model.type](model, x, t, e, b).item()
                     for j, current in enumerate(clusters_distance[cluster]):
                         if(current > distance):
                             clusters_distance[cluster].insert(j,distance)
                             closest_clusters[cluster].insert(j,i)
+                            clusters_losses[cluster].insert(j,loss)
                             break
                     else:
                         clusters_distance[cluster].append(distance)
                         closest_clusters[cluster].append(i)
+                        clusters_losses[cluster].append(loss)
+                for cluster in clusters_losses:
+                    plt.hist(cluster,bins=100)
+                plt.savefig("cluster_hist.png")
+                exit()
                 
+                    
                 coreset = []
                 for cluster in closest_clusters:
                     for i, point in enumerate(cluster):
@@ -276,6 +289,7 @@ class Diffusion(object):
                     e = torch.randn_like(x)
                     b = self.betas
                         # antithetic sampling
+                    
                     t = torch.ones(size=(1,)).type(torch.LongTensor).to(self.device)*20#config.select_t
                     t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
                     loss = loss_registry[config.model.type](model, x, t, e, b)
