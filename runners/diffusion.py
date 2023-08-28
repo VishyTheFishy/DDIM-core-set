@@ -218,6 +218,7 @@ class Diffusion(object):
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "k_means" and epoch == 2):
+                select = "loss"
                 m = 50
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
@@ -233,7 +234,7 @@ class Diffusion(object):
 
                     
                 clusters_distance = [[] for _ in range(100)]
-                closest_clusters = [[] for _ in range(100)]
+                best_clusters = [[] for _ in range(100)]
 
                 clusters_losses = [[] for _ in range(100)]
                 cluster_count = np.zeros(100)
@@ -249,26 +250,32 @@ class Diffusion(object):
                     embedding = model(x,t,True)
                     cluster = kmeans.predict(embedding)[0]
                     cluster_count[cluster] += 1
-                    distance = kmeans.transform(embedding)[0][cluster]
-                    loss = loss_registry[config.model.type](model, x, t, e, b).item()
-                    for j, current in enumerate(clusters_distance[cluster]):
-                        if(current > distance):
-                            clusters_distance[cluster].insert(j,distance)
-                            closest_clusters[cluster].insert(j,i)
-                            clusters_losses[cluster].insert(j,loss)
-                            break
-                    else:
-                        clusters_distance[cluster].append(distance)
-                        closest_clusters[cluster].append(i)
-                        clusters_losses[cluster].append(loss)
-                for cluster in clusters_losses:
-                    plt.hist(cluster,bins=100)
-                plt.savefig("cluster_hist.png")
-                exit()
+                    if(select == "distance"):
+                        distance = kmeans.transform(embedding)[0][cluster]
+                        
+                        for j, current in enumerate(clusters_distance[cluster]):
+                            if(current > distance):
+                                clusters_distance[cluster].insert(j,distance)
+                                best_clusters[cluster].insert(j,i)
+                                break
+                        else:
+                            clusters_distance[cluster].append(distance)
+                            best_clusters[cluster].append(i)
+                    if(select == "loss"):
+                        loss = loss_registry[config.model.type](model, x, t, e, b).item()
+                        for j, current in enumerate(clusters_losses[cluster]):
+                            if(current > distance):
+                                best_clusters[cluster].insert(j,i)
+                                clusters_losses[cluster].insert(j,loss)
+                                break
+                        else:
+                            best_clusters[cluster].append(i)
+                            clusters_losses[cluster].append(loss)
+
                 
                     
                 coreset = []
-                for cluster in closest_clusters:
+                for cluster in best_clusters:
                     for i, point in enumerate(cluster):
                         if(i == 50):
                             break
