@@ -264,7 +264,7 @@ class Diffusion(object):
                     if(select == "loss"):
                         loss = loss_registry[config.model.type](model, x, t, e, b).item()
                         for j, current in enumerate(clusters_losses[cluster]):
-                            if(current > distance):
+                            if(current > loss):
                                 best_clusters[cluster].insert(j,i)
                                 clusters_losses[cluster].insert(j,loss)
                                 break
