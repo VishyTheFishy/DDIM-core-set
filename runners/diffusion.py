@@ -106,7 +106,7 @@ class Diffusion(object):
 
         
     def train(self):
-        coreset_method = "k_means"
+        coreset_method = "none"
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
