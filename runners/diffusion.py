@@ -106,7 +106,7 @@ class Diffusion(object):
 
         
     def train(self):
-        coreset_method = "none"
+        coreset_method = "loss"
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
@@ -283,7 +283,7 @@ class Diffusion(object):
                 dataset = torch.utils.data.Subset(dataset, coreset)
             
                 
-            if(coreset_method == "loss" and len(dataset) > 5000):
+            if(coreset_method == "loss" and len(dataset) > 25000):
                 scores = []
                 coreset = []
                 
