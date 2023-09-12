@@ -106,7 +106,7 @@ class Diffusion(object):
 
         
     def train(self):
-        coreset_method = "none"
+        coreset_method = "loss"
         args, config = self.args, self.config
         tb_logger = self.config.tb_logger
         dataset, test_dataset = get_dataset(args, config)
@@ -136,7 +136,7 @@ class Diffusion(object):
                 ema_helper.load_state_dict(states[4])
         test_losses = []
         steps = []
-        for epoch in range(start_epoch, 100):#self.config.training.n_epochs):
+        for epoch in range(start_epoch, 30):#self.config.training.n_epochs):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
@@ -283,7 +283,7 @@ class Diffusion(object):
                 dataset = torch.utils.data.Subset(dataset, coreset)
             
                 
-            if(coreset_method == "loss" and len(dataset) > 5000):
+            if(coreset_method == "loss" and len(dataset) > 25000):
                 scores = []
                 coreset = []
                 
