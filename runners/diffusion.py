@@ -219,7 +219,7 @@ class Diffusion(object):
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "k_means" and epoch == 2):
                 select = "loss"
-                m = 50
+                m = 250
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
                     random_state=0,
