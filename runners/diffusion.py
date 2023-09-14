@@ -136,7 +136,7 @@ class Diffusion(object):
                 ema_helper.load_state_dict(states[4])
         test_losses = []
         steps = []
-        for epoch in range(start_epoch, 200):#self.config.training.n_epochs):
+        for epoch in range(start_epoch, 400):#self.config.training.n_epochs):
             total = 0
             for i, (x, y) in enumerate(test_loader):
                 print(epoch)
@@ -218,7 +218,7 @@ class Diffusion(object):
                 data_start = time.time()
             score_loader = data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=config.data.num_workers)
             if(coreset_method == "k_means" and epoch == 2):
-                select = "loss"
+                select = "distance"
                 m = 250
                 print(model)
                 kmeans = MiniBatchKMeans(n_clusters=100,
